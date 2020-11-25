@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
 #if 0
 void fun() {
@@ -15,21 +17,55 @@ void fun() {
 #endif
 
 
-void move16(unsigned char *dst, unsigned char *src)
+void move16(uint8_t *dst, uint8_t *src)
 {
+	uint16_t * __src_mem;
+	uint16_t * __dst_mem;
+	
+	__src_mem = (uint16_t *)src;
+	__dst_mem = (uint16_t *)dst;
+
 	asm volatile (
-		"ld %0, %1\n"
-		: "=r" (*dst)
-		: "m" (*src)
+		"lh %0, %1\n"
+		: "=r" (*__dst_mem)
+		: "m" (*__src_mem)
 	);	
 }
 
+void move32(uint8_t *dst, uint8_t *src)
+{
+	uint32_t * __src_mem;
+	uint32_t * __dst_mem;
+	
+	__src_mem = (uint32_t *)src;
+	__dst_mem = (uint32_t *)dst;
+
+	asm volatile (
+		"lw %0, %1\n"
+		: "=r" (*__dst_mem)
+		: "m" (*__src_mem)
+	);	
+}
+
+
+
 int main()
 {
-	unsigned short int aa = 0;
-	unsigned short int bb = 123;
+#if 0
+	uint32_t src = 111111111123;
+	uint32_t dst = 321;
 
-	move16(&aa, &bb);
-	printf("%u\n", aa);
+	move32(&dst, &src);
+	printf("dst %lu\n", dst);
+	printf("src %lu\n", src);
+
+	int cmp = memcmp(&src, &dst, 4);
+	if (cmp < 0)
+		printf("src < dst\n");
+	else if (cmp > 0)
+		printf("src > dst\n");
+	else
+		printf("src == dst\n");
+#endif
 	return 0;
 }
